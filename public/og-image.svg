@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="sparkGradient" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stopColor="#C2622D" />
+      <stop offset="100%" stopColor="#E08A4F" />
+    </linearGradient>
+    <style>
+      .title { font-family: 'Fraunces', Georgia, serif; font-size: 54px; font-weight: 800; fill: #FBF8F3; letter-spacing: -0.02em; }
+      .subtitle { font-family: 'Work Sans', system-ui, sans-serif; font-size: 20px; font-weight: 600; fill: #C2622D; letter-spacing: 0.15em; }
+      .brand-web { font-family: 'Fraunces', Georgia, serif; font-size: 48px; font-weight: 900; fill: #FBF8F3; letter-spacing: 0.08em; }
+      .brand-smith { font-family: 'Fraunces', Georgia, serif; font-size: 48px; font-weight: 900; fill: #C2622D; letter-spacing: 0.08em; }
+    </style>
+  </defs>
+
+  {/* Solid Charcoal Background */}
+  <rect width="1200" height="630" fill="#14110F" />
+  
+  {/* Ambient glowing background accent behind logo */}
+  <circle cx="600" cy="210" r="300" fill="#C2622D" opacity="0.08" />
+
+  {/* Logo Mark Centered */}
+  <g transform="translate(550, 90) scale(1.0)">
+    {/* Anvil shape */}
+    <path
+      d="M 15,46 L 85,46 L 85,54 L 62,54 Q 58,64 58,72 L 68,72 L 72,80 L 28,80 L 32,72 L 42,72 Q 42,64 38,54 L 15,46 Z"
+      fill="#FBF8F3"
+    />
+    {/* Gilded accent highlight */}
+    <path
+      d="M 24,46 L 76,46 L 76,49 L 24,49 Z"
+      fill="#C2622D"
+    />
+    {/* Spark Embers */}
+    <g fill="url(#sparkGradient)">
+      <path d="M 50,12 L 53,22 L 63,25 L 53,28 L 50,38 L 47,28 L 37,25 L 47,22 Z" />
+      <path d="M 32,23 L 33.5,27 L 37.5,28 L 33.5,29 L 32,33 L 30.5,29 L 26.5,28 L 30.5,27 Z" />
+      <path d="M 68,17 L 69.5,21 L 73.5,22 L 69.5,23 L 68,27 L 66.5,23 L 62.5,22 L 66.5,21 Z" />
+    </g>
+  </g>
+
+  {/* Wordmark Logo Centered */}
+  <g transform="translate(600, 290)">
+    <text text-anchor="end" x="-12" y="0" class="brand-web">WEB</text>
+    <text text-anchor="start" x="12" y="0" class="brand-smith">SMITH</text>
+  </g>
+
+  {/* Value Proposition */}
+  <text text-anchor="middle" x="600" y="425" class="title">We Forge Websites. You Get Customers.</text>
+
+  {/* Subtitle */}
+  <text text-anchor="middle" x="600" y="485" class="subtitle">PREMIUM WEBSITE FORGE • DELIVERED IN 5–7 DAYS</text>
+</svg>

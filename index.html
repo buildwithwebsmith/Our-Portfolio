@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Defensive Shield for window.fetch override issue -->
+    <script>
+      try {
+        const originalFetch = window.fetch;
+        let currentFetch = originalFetch;
+        Object.defineProperty(window, 'fetch', {
+          configurable: true,
+          enumerable: true,
+          get() {
+            return currentFetch;
+          },
+          set(value) {
+            currentFetch = value;
+          }
+        });
+      } catch (e) {
+        console.warn('Unable to define window.fetch property shield:', e);
+      }
+    </script>
+
+    <title>WEBSMITH — We Forge Websites. You Get Customers.</title>
+    <meta name="description" content="WEBSMITH premium website forge builds clean, high-conversion, mobile-first websites in 5–7 days for Indian boutiques, clinics, and local brands." />
+    
+    <!-- Favicon and Brand Icons -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+
+    <!-- Open Graph tags for WhatsApp and Social Media Previews -->
+    <meta property="og:title" content="WEBSMITH — We Forge Websites. You Get Customers." />
+    <meta property="og:description" content="Premium, custom-crafted website forge for Indian boutiques, clinics, and businesses. High-conversion and mobile-first, delivered in 5–7 days." />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Websmith" />
+    <meta property="og:image" content="/og-image.svg" />
+    <meta property="og:image:type" content="image/svg+xml" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+  </head>
+  <body class="bg-[#f4f8f5] text-slate-900">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

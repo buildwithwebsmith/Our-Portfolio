@@ -1,0 +1,169 @@
+@import "tailwindcss";
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+
+@theme {
+  --font-serif: "Fraunces", Georgia, serif;
+  --font-sans: "Work Sans", system-ui, -apple-system, sans-serif;
+  
+  --color-parchment: #FBF8F3;
+  --color-charcoal: #14110F;
+  --color-copper: #C2622D;
+  --color-burgundy: #7A1422;
+  --color-forgegreen: #2F4538;
+  --color-nearblack: #1B1814;
+  --color-warmgray: #6B6258;
+}
+
+/* Global scroll behavior */
+html {
+  scroll-behavior: smooth;
+  color-scheme: light;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-parchment);
+  color: var(--color-nearblack);
+  margin: 0;
+  padding: 0;
+}
+
+/* Custom scrollbar matching our premium copper/charcoal aesthetic */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-parchment);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-warmgray);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-copper);
+}
+
+/* Scroll reveal animations */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Accent highlight utility */
+.text-copper {
+  color: var(--color-copper);
+}
+
+/* Custom visual rules/lines like ledger lines */
+.ledger-line {
+  border-bottom: 1.5px solid rgba(194, 98, 45, 0.15);
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+/* Custom flicker keyframes for our logo spark */
+@keyframes spark-flicker {
+  0%, 100% {
+    transform: scale(1) translateY(0);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.15) translateY(-2px);
+    opacity: 1;
+  }
+  25%, 75% {
+    transform: scale(0.95) translateY(1px);
+    opacity: 0.85;
+  }
+}
+
+/* Logo specific styles */
+.spark-ember {
+  transform-origin: 50% 65%;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Spark flickers only on hovering the entire logo group */
+.group:hover .spark-ember {
+  animation: spark-flicker 1s infinite ease-in-out;
+}
+
+/* Premium magnetic hover button interactions */
+.btn-magnetic {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s ease, border-color 0.2s ease;
+}
+
+/* Animated footer link underline drawing left-to-right on hover */
+.footer-link-underline {
+  position: relative;
+}
+.footer-link-underline::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  transform: scaleX(0);
+  height: 1.5px;
+  bottom: -2px;
+  left: 0;
+  background-color: var(--color-copper);
+  transform-origin: bottom left;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.footer-link-underline:hover::after {
+  transform: scaleX(1);
+}
+
+/* Subtle bounce animation for back to top */
+@keyframes bounce-subtle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+.animate-bounce-subtle {
+  animation: bounce-subtle 2s infinite ease-in-out;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .btn-magnetic:hover {
+    transform: scale(1.03);
+    box-shadow: 0 10px 25px -5px rgba(194, 98, 45, 0.25), 0 8px 10px -6px rgba(194, 98, 45, 0.15);
+  }
+  .btn-magnetic:active {
+    transform: scale(0.97);
+  }
+}
+
+/* Accessibility: strict respects prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .spark-ember,
+  .logo-mark,
+  .btn-magnetic,
+  .btn-magnetic:hover,
+  .btn-magnetic:active,
+  .group:hover .spark-ember,
+  .group:hover .logo-mark,
+  img,
+  a,
+  span,
+  button {
+    animation: none !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
+

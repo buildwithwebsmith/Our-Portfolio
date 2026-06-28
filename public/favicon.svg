@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
+  <defs>
+    <linearGradient id="sparkGradient" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stopColor="#C2622D" />
+      <stop offset="100%" stopColor="#E08A4F" />
+    </linearGradient>
+  </defs>
+  {/* Rounded square background container for universal tab-contrast */}
+  <rect width="100" height="100" rx="22" fill="#FBF8F3" />
+  
+  {/* Anvil shape */}
+  <path
+    d="M 20,50 L 80,50 L 80,57 L 59,57 Q 55,66 55,73 L 64,73 L 68,80 L 32,80 L 36,73 L 45,73 Q 45,66 41,57 L 20,50 Z"
+    fill="#1B1814"
+  />
+
+  {/* Gilded accent highlight */}
+  <path
+    d="M 28,50 L 72,50 L 72,53 L 28,53 Z"
+    fill="#C2622D"
+  />
+
+  {/* Spark Embers */}
+  <g fill="url(#sparkGradient)">
+    <path d="M 50,18 L 52.5,27 L 61.5,30 L 52.5,33 L 50,42 L 47.5,33 L 38.5,30 L 47.5,27 Z" />
+    <path d="M 34,28 L 35.2,31.5 L 38.5,32.5 L 35.2,33.5 L 34,37 L 32.8,33.5 L 29.5,32.5 L 32.8,31.5 Z" />
+    <path d="M 66,23 L 67.2,26.5 L 70.5,27.5 L 67.2,28.5 L 66,32 L 64.8,28.5 L 61.5,27.5 L 64.8,26.5 Z" />
+  </g>
+</svg>
