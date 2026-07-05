@@ -1,119 +1,146 @@
 import React from 'react';
 
+type LogoVariant = 'light' | 'dark' | 'mono';
+
 interface LogoMarkProps {
-  size?: number | string;
+  size?: number;
   className?: string;
-  variant?: 'light' | 'dark' | 'mono';
+  variant?: LogoVariant;
 }
+
+const getLogoColors = (variant: LogoVariant = 'dark') => {
+  switch (variant) {
+    case 'light':
+      return {
+        primary: '#1B1814',
+        accent: '#EB781C',
+      };
+    case 'mono':
+      return {
+        primary: 'currentColor',
+        accent: 'currentColor',
+      };
+    case 'dark':
+    default:
+      return {
+        primary: '#FBF8F3',
+        accent: '#EB781C',
+      };
+  }
+};
 
 export const LogoMark: React.FC<LogoMarkProps> = ({
   size = 40,
   className = '',
-  variant = 'light',
+  variant = 'dark' as LogoVariant,
 }) => {
-  // Determine colors based on variant
-  const anvilFill = 
-    variant === 'light' 
-      ? '#1B1814' // Near-black charcoal
-      : variant === 'dark' 
-      ? '#FBF8F3' // Cream parchment
-      : 'currentColor';
-
-  const highlightFill = 
-    variant === 'mono' 
-      ? 'currentColor' 
-      : '#C2622D'; // Gilded copper top plate
-
-  // ID for linear gradient to prevent conflicts
-  const gradientId = `spark-gradient-${variant}`;
+  const { primary, accent } = getLogoColors(variant);
+  const width = size * 2.18;
 
   return (
     <svg
-      width={size}
+      width={width}
       height={size}
-      viewBox="0 0 100 100"
+      viewBox="0 0 300 140"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className={`logo-mark select-none transition-transform duration-300 ${className}`}
+      className={className}
+      aria-hidden="true"
     >
-      <defs>
-        {variant !== 'mono' ? (
-          <linearGradient id={gradientId} x1="0%" y1="100%" x2="0%" y2="0%">
-            <stop offset="0%" stopColor="#C2622D" />
-            <stop offset="100%" stopColor="#E08A4F" />
-          </linearGradient>
-        ) : null}
-      </defs>
-
-      {/* Modern, Geometric Anvil Silhouette */}
-      <path
-        d="M 15,46 L 85,46 L 85,54 L 62,54 Q 58,64 58,72 L 68,72 L 72,80 L 28,80 L 32,72 L 42,72 Q 42,64 38,54 L 15,46 Z"
-        fill={anvilFill}
+      <polyline
+        points="52 30 20 70 52 110"
+        stroke={primary}
+        strokeWidth="14"
+        strokeLinecap="square"
+        strokeLinejoin="miter"
       />
-
-      {/* Gilded Top Accent (gilded deck highlight) */}
-      {variant !== 'mono' && (
-        <path
-          d="M 24,46 L 76,46 L 76,49 L 24,49 Z"
-          fill={highlightFill}
-        />
-      )}
-
-      {/* Spark Embers (styled flame / starburst marks) */}
-      <g 
-        className="spark-ember" 
-        fill={variant === 'mono' ? 'currentColor' : `url(#${gradientId})`}
-      >
-        {/* Center large dynamic starburst spark */}
-        <path d="M 50,12 L 53,22 L 63,25 L 53,28 L 50,38 L 47,28 L 37,25 L 47,22 Z" />
-        {/* Left small spark */}
-        <path d="M 32,23 L 33.5,27 L 37.5,28 L 33.5,29 L 32,33 L 30.5,29 L 26.5,28 L 30.5,27 Z" />
-        {/* Right small spark */}
-        <path d="M 68,17 L 69.5,21 L 73.5,22 L 69.5,23 L 68,27 L 66.5,23 L 62.5,22 L 66.5,21 Z" />
-      </g>
+      <polyline
+        points="248 30 280 70 248 110"
+        stroke={primary}
+        strokeWidth="14"
+        strokeLinecap="square"
+        strokeLinejoin="miter"
+      />
+      <polyline
+        points="78 22 116 116 150 66 184 116 222 22"
+        stroke={primary}
+        strokeWidth="20"
+        strokeLinecap="square"
+        strokeLinejoin="miter"
+      />
+      <line
+        x1="150"
+        y1="12"
+        x2="150"
+        y2="78"
+        stroke={accent}
+        strokeWidth="8"
+        strokeLinecap="round"
+      />
+      <circle
+        cx="150"
+        cy="12"
+        r="12"
+        stroke={accent}
+        strokeWidth="8"
+      />
+      <circle
+        cx="150"
+        cy="78"
+        r="10"
+        stroke={accent}
+        strokeWidth="8"
+      />
     </svg>
   );
 };
 
 interface LogoProps {
-  variant?: 'light' | 'dark' | 'mono';
+  variant?: LogoVariant;
   showText?: boolean;
   className?: string;
-  size?: number | string;
+  size?: number;
 }
 
 export const Logo: React.FC<LogoProps> = ({
-  variant = 'light',
+  variant = 'dark' as LogoVariant,
   showText = true,
   className = '',
   size = 40,
 }) => {
-  const textClass = 
-    variant === 'light' 
-      ? 'text-nearblack' 
-      : variant === 'dark' 
-      ? 'text-parchment' 
-      : 'text-current';
+  const { primary, accent } = getLogoColors(variant);
+  const textSize = Math.round(size * 0.94);
+  const dotSize = Math.max(4, Math.round(size * 0.14));
+  const gap = Math.max(8, Math.round(size * 0.18));
 
   return (
-    <div className={`flex items-center gap-2.5 group no-underline select-none ${className}`}>
-      {/* Interactive frame for the logo mark */}
-      <div className={`w-10 h-10 rounded-xl flex items-center justify-center border transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-[1.05] overflow-hidden shrink-0 ${
-        variant === 'dark' 
-          ? 'bg-[#1C1815] border-white/10 shadow-md' 
-          : 'bg-parchment border-nearblack/10 shadow-xs'
-      }`}>
-        <LogoMark size={size} variant={variant} />
-      </div>
+    <div
+      className={`inline-flex items-center select-none ${className}`}
+      style={{ gap: `${gap}px` }}
+    >
+      <LogoMark size={size} variant={variant} />
 
       {showText && (
-        <span className={`font-serif font-extrabold text-xl tracking-[0.08em] flex items-center ${textClass}`}>
-          <span>WEB</span>
-          <span className="relative text-copper ml-0.5">
-            SMITH
-            {/* Animated copper underline on entire group hover */}
-            <span className="absolute bottom-[-2px] left-0 w-full h-[2.5px] bg-copper scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+        <span
+          className="font-sans font-bold leading-none"
+          style={{ color: primary, fontSize: `${textSize}px` }}
+        >
+          <span>Websm</span>
+          <span className="relative inline-block">
+            <span>{'\u0131'}</span>
+            <span
+              className="absolute rounded-full"
+              style={{
+                width: `${dotSize}px`,
+                height: `${dotSize}px`,
+                backgroundColor: accent,
+                top: `${Math.round(size * 0.12)}px`,
+                left: '50%',
+                transform: 'translateX(-50%)',
+              }}
+            />
           </span>
+          <span>th</span>
         </span>
       )}
     </div>

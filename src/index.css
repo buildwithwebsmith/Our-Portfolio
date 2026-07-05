@@ -1,7 +1,5 @@
 @import "tailwindcss";
 
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap');
-
 @theme {
   --font-serif: "Fraunces", Georgia, serif;
   --font-sans: "Work Sans", system-ui, -apple-system, sans-serif;
@@ -166,4 +164,3 @@ body {
     transition: none !important;
   }
 }
-

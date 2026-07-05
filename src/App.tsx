@@ -155,47 +155,46 @@ const faqItems = [
   }
 ];
 
-// Count-up helper component for stats animation on scroll
-function CountUp({ end, duration = 2000 }: { end: number; duration?: number }) {
-  const [count, setCount] = useState(0);
-  const [hasAnimated, setHasAnimated] = useState(false);
-  const ref = React.useRef<HTMLSpanElement>(null);
+type ContactFormData = {
+  name: string;
+  email: string;
+  phone: string;
+  businessName: string;
+  city: string;
+  serviceType: string;
+  message: string;
+};
 
-  useEffect(() => {
-    let active = true;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && !hasAnimated && active) {
-          setHasAnimated(true);
-          let start = 0;
-          const incrementTime = Math.max(Math.floor(duration / end), 40);
-          
-          const timer = setInterval(() => {
-            if (!active) {
-              clearInterval(timer);
-              return;
-            }
-            start += 1;
-            setCount(start);
-            if (start >= end) {
-              clearInterval(timer);
-            }
-          }, incrementTime);
-        }
-      },
-      { threshold: 0.1 }
-    );
-    if (ref.current) {
-      observer.observe(ref.current);
-    }
-    return () => {
-      active = false;
-      observer.disconnect();
-    };
-  }, [end, duration, hasAnimated]);
+const CONTACT_EMAIL = 'buildwithwebsmith@gmail.com';
+const WHATSAPP_PHONE = '918007006961';
+const INITIAL_FORM_DATA: ContactFormData = {
+  name: '',
+  email: '',
+  phone: '',
+  businessName: '',
+  city: '',
+  serviceType: 'New Website',
+  message: '',
+};
 
-  return <span ref={ref}>{count}</span>;
-}
+const buildLeadSummary = (formData: ContactFormData) =>
+  [
+    `Hi Websmith, I'm ${formData.name || 'interested'} from ${formData.city || 'N/A'}.`,
+    `Business: ${formData.businessName || 'N/A'}.`,
+    `Interested in: ${formData.serviceType}.`,
+    `Phone: ${formData.phone || 'N/A'}.`,
+    `Email: ${formData.email || 'N/A'}.`,
+    `Message: ${formData.message || 'I would like to build a website.'}`,
+  ].join(' ');
+
+const buildWhatsAppUrl = (formData?: ContactFormData) => {
+  const baseUrl = `https://wa.me/${WHATSAPP_PHONE}`;
+  if (!formData) {
+    return baseUrl;
+  }
+
+  return `${baseUrl}?text=${encodeURIComponent(buildLeadSummary(formData))}`;
+};
 
 export default function App() {
   const [scrolled, setScrolled] = useState(false);
@@ -211,17 +210,13 @@ export default function App() {
 
   // Contact Form State
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [formSubmitting, setFormSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
+  const [formSuccessMessage, setFormSuccessMessage] = useState('');
+  const [formDebugPreviewUrl, setFormDebugPreviewUrl] = useState('');
   const [formStep, setFormStep] = useState(1); // Multi-step contact form
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    businessName: '',
-    city: '',
-    serviceType: 'New Website',
-    message: ''
-  });
+  const [formData, setFormData] = useState<ContactFormData>(INITIAL_FORM_DATA);
+  const currentYear = new Date().getFullYear();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -279,7 +274,7 @@ export default function App() {
     setFormStep(2);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (formStep === 1) {
       if (!formData.name.trim() || !formData.phone.trim()) {
@@ -295,15 +290,43 @@ export default function App() {
       setFormError('Please fill in your Email Address and City to submit.');
       return;
     }
+
     setFormError('');
-    setFormSubmitted(true);
+    setFormSuccessMessage('');
+    setFormDebugPreviewUrl('');
+    setFormSubmitting(true);
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const payload = await response.json().catch(() => null);
+
+      if (!response.ok || !payload?.ok) {
+        throw new Error(payload?.error || 'We could not deliver your enquiry yet. Please try again in a moment.');
+      }
+
+      setFormSubmitted(true);
+      setFormSuccessMessage(
+        payload.message || `Your project brief has been sent to ${CONTACT_EMAIL}.`
+      );
+      setFormDebugPreviewUrl(payload.previewUrl || '');
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'We could not deliver your enquiry yet. Please try again in a moment.';
+      setFormError(message);
+    } finally {
+      setFormSubmitting(false);
+    }
   };
 
   // Helper to pre-populate and redirect to WhatsApp with custom message
   const triggerWhatsAppRedirect = () => {
-    const text = `Hi Websmith, I'm ${formData.name || 'interested'} from ${formData.city || 'N/A'}. Business: ${formData.businessName || 'N/A'}. Interested in: ${formData.serviceType}. Message: ${formData.message || 'I would like to build a website.'}`;
-    const encodedText = encodeURIComponent(text);
-    window.open(`https://wa.me/918007006961?text=${encodedText}`, '_blank');
+    window.open(buildWhatsAppUrl(formData), '_blank', 'noopener,noreferrer');
   };
 
   // Testimonial swipe gesture handlers
@@ -343,14 +366,14 @@ export default function App() {
 
         {/* THIN TOP UTILITY BAR (near-black plum) */}
         <div className="w-full bg-[#241D2C] text-[#F8ECDF]/90 text-[11px] font-medium tracking-wider py-2.5 px-4 text-center select-none font-sans">
-          ✦ Premium Website Forge for Indian Boutiques, Clinics, & Businesses — 5-7 Days Delivery ✦
+          Custom Website Design for Indian Boutiques, Clinics and Local Businesses - Delivered in 5-7 Days
         </div>
 
         {/* MAIN NAVIGATION BAR CONTAINER */}
         <div className={`transition-all duration-300 ${scrolled ? 'py-3.5' : 'py-6'}`}>
           <div className="container mx-auto px-6 max-w-7xl flex items-center justify-between">
             
-            {/* Logo with custom Anvil & Spark Icon */}
+            {/* Brand logo */}
             <a href="#" className="no-underline" id="brand-logo">
               <Logo variant="light" size={40} />
             </a>
@@ -444,23 +467,23 @@ export default function App() {
           {/* Eyebrow Label with small icon */}
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-copper/20 bg-white/80 mb-7 shadow-2xs reveal">
             <Flame className="w-3.5 h-3.5 text-copper animate-pulse" />
-            <span className="font-sans text-[11px] font-bold tracking-widest text-copper uppercase">WEB DEVELOPMENT AGENCY</span>
+            <span className="font-sans text-[11px] font-bold tracking-widest text-copper uppercase">WEBSITE DESIGN AGENCY IN INDIA</span>
           </div>
 
           {/* Heading - Fraunces chunk bold, highlight key word in copper */}
           <h1 className="font-serif text-5xl md:text-6xl lg:text-7.5xl font-extrabold text-nearblack leading-tight tracking-tight mb-6 reveal">
-            Stunning Websites <br />
-            <span className="text-copper">Forged for Growth</span>
+            Custom Website Design and Development in India <br />
+            <span className="text-copper">for Boutiques, Clinics and Growing Local Brands</span>
           </h1>
 
           {/* Sub-Headline - Work Sans, normal weight, gray */}
           <p className="font-serif italic text-lg md:text-xl text-warmgray max-w-2xl mx-auto mb-5 leading-relaxed reveal">
-            "Elevating India's finest boutiques, clinics, and local brands with world-class digital design."
+            We build premium business websites that help Indian brands rank on Google, earn trust quickly, and turn more visitors into real enquiries.
           </p>
 
           {/* Paragraph */}
-          <p className="font-sans text-[15px] md:text-base text-warmgray max-w-xl mx-auto mb-9 leading-relaxed reveal">
-            No agency fluff. Just high-conversion, responsive web experiences tailored precisely to your brand and hand-delivered in 5–7 days.
+          <p className="font-sans text-[15px] md:text-base text-warmgray max-w-2xl mx-auto mb-9 leading-relaxed reveal">
+            From fashion boutiques and medical clinics to cafes and local service businesses, Websmith creates SEO-friendly, mobile-responsive websites in 5-7 days - built to load fast, look polished, and bring in better quality leads.
           </p>
 
           {/* CTA Buttons - Unified solid copper family styling with magnetic interactions */}
@@ -475,7 +498,7 @@ export default function App() {
             </a>
             
             <a 
-              href="https://wa.me/918007006961" 
+              href={buildWhatsAppUrl()} 
               target="_blank" 
               rel="noopener noreferrer" 
               className="font-sans font-bold text-xs tracking-wider uppercase px-8 py-4 rounded-xl bg-copper text-parchment hover:bg-copper/90 transition-all duration-200 w-full sm:w-auto flex items-center justify-center gap-2 text-center active:translate-y-0.5 shadow-sm btn-magnetic" 
@@ -489,7 +512,7 @@ export default function App() {
           {/* Trust Line */}
           <div className="font-sans text-xs font-semibold text-warmgray tracking-wide flex items-center justify-center gap-2.5 reveal" id="hero-trust-line">
             <span className="text-amber-500">⭐⭐⭐⭐⭐</span>
-            <span>Trusted by <CountUp end={10} />+ local businesses across India</span>
+            <span>Trusted by 10+ local businesses across India</span>
           </div>
 
         </div>
@@ -990,7 +1013,7 @@ export default function App() {
               <span className="block text-burgundy italic font-bold mt-1 reveal" style={{ transitionDelay: '120ms' }}>Something Great</span>
             </h2>
             <p className="font-sans text-sm md:text-base text-warmgray reveal" style={{ transitionDelay: '180ms' }}>
-              Ready to take your business online? We're currently accepting new projects. Reach out — let's get you customers.
+              Ready to take your business online? We're currently accepting new projects. Reach out and let's get you customers.
             </p>
           </div>
 
@@ -998,7 +1021,7 @@ export default function App() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-12" id="contact-info-cards">
             {/* Card 1 */}
             <a 
-              href="https://wa.me/918007006961" 
+              href={buildWhatsAppUrl()} 
               target="_blank" 
               rel="noopener noreferrer" 
               className="bg-white p-6 rounded-xl border border-nearblack/10 flex flex-col items-center hover:-translate-y-0.5 hover:border-copper/40 transition-all duration-200 no-underline text-nearblack reveal group"
@@ -1009,11 +1032,11 @@ export default function App() {
 
             {/* Card 2 */}
             <a 
-              href="mailto:buildwithwebsmith@gmail.com" 
+              href={`mailto:${CONTACT_EMAIL}`} 
               className="bg-white p-6 rounded-xl border border-nearblack/10 flex flex-col items-center hover:-translate-y-0.5 hover:border-copper/40 transition-all duration-200 no-underline text-nearblack reveal group"
             >
               <span className="font-serif text-base text-copper font-bold block mb-1">Email</span>
-              <span className="font-sans text-sm font-semibold text-nearblack group-hover:text-copper transition-colors">buildwithwebsmith@gmail.com</span>
+              <span className="font-sans text-sm font-semibold text-nearblack group-hover:text-copper transition-colors">{CONTACT_EMAIL}</span>
             </a>
 
             {/* Card 3 */}
@@ -1056,8 +1079,18 @@ export default function App() {
                 </div>
                 <h4 className="font-serif text-2xl font-bold text-nearblack mb-3">Project Specs Handed Off!</h4>
                 <p className="font-sans text-sm text-warmgray max-w-md mx-auto mb-8">
-                  Thanks <strong>{formData.name}</strong>, we have prepared our workbench. Our average response time is under 15 minutes. Click below to instantly accelerate via WhatsApp.
+                  Thanks <strong>{formData.name}</strong>. {formSuccessMessage}
                 </p>
+                {formDebugPreviewUrl && (
+                  <a
+                    href={formDebugPreviewUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center mb-6 font-sans text-xs font-semibold text-copper hover:underline"
+                  >
+                    Open test email preview
+                  </a>
+                )}
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                   <button 
                     onClick={triggerWhatsAppRedirect}
@@ -1069,16 +1102,12 @@ export default function App() {
                   <button 
                     onClick={() => {
                       setFormSubmitted(false);
+                      setFormSubmitting(false);
+                      setFormError('');
+                      setFormSuccessMessage('');
+                      setFormDebugPreviewUrl('');
                       setFormStep(1);
-                      setFormData({
-                        name: '',
-                        email: '',
-                        phone: '',
-                        businessName: '',
-                        city: '',
-                        serviceType: 'New Website',
-                        message: ''
-                      });
+                      setFormData(INITIAL_FORM_DATA);
                     }}
                     className="w-full sm:w-auto font-sans text-xs font-semibold text-warmgray hover:text-nearblack transition-colors"
                   >
@@ -1143,6 +1172,7 @@ export default function App() {
                       <button 
                         type="button" 
                         onClick={handleContinueStep2}
+                        disabled={formSubmitting}
                         className="w-full font-sans font-bold text-xs tracking-wider uppercase h-12 rounded-xl bg-copper text-parchment hover:bg-copper/90 transition-all duration-200 flex items-center justify-center gap-1.5 shadow-sm active:translate-y-0.5 cursor-pointer"
                       >
                         Continue to Next Step
@@ -1227,10 +1257,11 @@ export default function App() {
                     <div className="pt-2">
                       <button 
                         type="submit" 
+                        disabled={formSubmitting}
                         className="w-full font-sans font-bold text-xs tracking-wider uppercase h-12 rounded-xl bg-copper text-parchment hover:bg-copper/90 transition-all duration-200 flex items-center justify-center gap-1.5 shadow-sm active:translate-y-0.5 cursor-pointer"
                         id="form-submit-btn"
                       >
-                        Send My Details &rarr;
+                        {formSubmitting ? 'Sending...' : 'Send My Details ->'}
                       </button>
                       
                       {/* Urgency guarantee reassurance line */}
@@ -1257,7 +1288,7 @@ export default function App() {
           {/* Centered WhatsApp CTA Button */}
           <div className="reveal text-center">
             <a 
-              href="https://wa.me/918007006961" 
+              href={buildWhatsAppUrl()} 
               target="_blank" 
               rel="noopener noreferrer" 
               className="inline-flex items-center justify-center gap-2.5 font-sans font-bold text-xs tracking-wider uppercase px-9 py-4.5 rounded-xl bg-copper text-parchment hover:bg-copper/90 transition-all duration-200 active:translate-y-0.5 shadow-xs"
@@ -1277,7 +1308,7 @@ export default function App() {
           {/* Centered Footer Logo Lockup */}
           <div className="flex justify-center mb-8">
             <a href="#" className="no-underline">
-              <Logo variant="dark" size={40} />
+              <Logo variant="dark" size={44} />
             </a>
           </div>
 
@@ -1291,7 +1322,7 @@ export default function App() {
           </div>
           
           <p className="font-sans text-xs text-parchment/50 tracking-wider">
-            © 2025 Websmith. Forging the web, one business at a time. 🔨
+            Copyright {currentYear} Websmith. Forging the web, one business at a time.
           </p>
         </div>
       </footer>
@@ -1308,7 +1339,7 @@ export default function App() {
 
       {/* FLOATING WHATSAPP BUTTON (circular, brand green, fixed bottom-right) */}
       <a 
-        href="https://wa.me/918007006961" 
+        href={buildWhatsAppUrl()} 
         target="_blank" 
         rel="noopener noreferrer" 
         className="fixed bottom-6 right-6 w-14 h-14 bg-[#25D366] hover:bg-[#20ba5a] text-white rounded-full flex items-center justify-center shadow-xl hover:scale-110 active:scale-95 transition-all duration-200 z-50 group"
